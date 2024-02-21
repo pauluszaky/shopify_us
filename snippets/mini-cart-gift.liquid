@@ -1,0 +1,45 @@
+<div class="mini-cart__recommendation-item" data-variant="{{ variant.id }}" data-gift-type="{{ type }}">
+  <div class="mini-cart__image-wrapper">
+    {%- comment -%}For vertical images we force to contain them on a square ratio to avoid growing too large{%- endcomment -%}
+
+    {%- if product.featured_image.aspect_ratio < 1 -%}
+      <div class="aspect-ratio aspect-ratio--square">
+        <img src="{{ product.featured_image | img_url: '180x' }}" alt="{{ product.featured_image.alt | escape }}">
+      </div>
+    {%- else -%}
+      <div class="aspect-ratio" style="padding-bottom: {{ 100.0 | divided_by: product.featured_image.aspect_ratio }}%">
+        <img src="{{ product.featured_image | img_url: '180x' }}" alt="{{ product.featured_image.alt | escape }}">
+      </div>
+    {%- endif -%}
+  </div>
+
+  <div class="mini-cart__product-wrapper">
+    <div class="mini-cart__product-info">
+      <a href="{{ product.url }}" class="mini-cart__product-title text--strong link">{{ product.title }}</a>
+
+      {%- liquid
+        assign product_in_cart = false
+        for line_item in cart.items
+          if line_item.product_id == product.id
+            assign product_in_cart = true
+            break
+          endif
+        endfor
+      -%}
+
+      {%- capture button_class -%}
+        {%- unless product_in_cart -%}
+          mini-cart__recommendation-add
+        {%- else -%}
+          mini-cart__recommendation-added
+        {%- endunless -%}
+      {%- endcapture -%}
+
+      <button class="{{ button_class | strip }}" data-action="gift-add" type="button">
+        {%- render 'icon', icon: 'cart-check' -%}
+        <span data-recommendation-add>{{ 'product.form.gift_to_cart' | t }}</span>
+        <span data-recommendation-added>{{ 'product.form.added_short' | t }}</span>
+      </button>
+    </div>
+  </div>
+</div>

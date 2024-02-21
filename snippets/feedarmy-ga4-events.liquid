@@ -1,0 +1,136 @@
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TBFWB8G');</script>
+<!-- End Google Tag Manager -->
+<!-- Google Analytics 4 Data Layer Start Copyright FeedArmy 2022 V1.3 -->
+
+<!-- Please add your alpha2 code, you can find it here: https://help.shopify.com/en/api/custom-storefronts/storefront-api/reference/enum/countrycode -->
+{%- assign fa_product_id_alpha2_code = 'US' -%}
+
+<!-- set your product id values are default, product_id, parent_id, sku-->
+{%- assign fa_product_id = 'default' -%}
+
+{%- assign fa_current_variant = product.selected_or_first_available_variant -%}
+{%- assign fa_variant_count = product.variants | size -%}
+{%- assign fa_count = 0 -%}
+
+  {%- if fa_product_id == 'default' -%}{%- capture fa_product_id_value -%}shopify_{{ fa_product_id_alpha2_code }}_{{ product.id }}_{{ fa_current_variant.id }}{%- endcapture -%}
+{%- elsif fa_product_id == 'product_id' -%}
+  {%- capture fa_product_id_value -%}
+    {{ fa_current_variant.id }}{%- endcapture -%}
+{%- elsif fa_product_id == 'parent_id' -%}
+  {%- capture fa_product_id_value -%}
+    {{product.id }}{%- endcapture -%}
+{%- elsif fa_product_id == 'sku' -%}
+  {%- capture fa_product_id_value -%}
+    {{ fa_current_variant.sku | escape }}{%- endcapture -%}
+{%- endif -%}
+
+{%- if cart.currency.iso_code == 'GBP' or cart.currency.iso_code == 'USD' or cart.currency.iso_code == 'CAD' or cart.currency.iso_code == 'AUD' or cart.currency.iso_code == 'BWP' or cart.currency.iso_code == 'BND' or cart.currency.iso_code == 'DOP' or cart.currency.iso_code == 'GTQ' or cart.currency.iso_code == 'HKD' or cart.currency.iso_code == 'INR' or cart.currency.iso_code == 'ILS' or cart.currency.iso_code == 'YEN' or cart.currency.iso_code == 'KES' or cart.currency.iso_code == 'KOR' or cart.currency.iso_code == 'LBP' or cart.currency.iso_code == 'MYR' or cart.currency.iso_code == 'MXN' or cart.currency.iso_code == 'NPR' or cart.currency.iso_code == 'NZD' or cart.currency.iso_code == 'NIO' or cart.currency.iso_code == 'NGN' or cart.currency.iso_code == 'PKR' or cart.currency.iso_code == 'CNY' or cart.currency.iso_code == 'PHP' or cart.currency.iso_code == 'SGD' or cart.currency.iso_code == 'LKR' or cart.currency.iso_code == 'CHF' or cart.currency.iso_code == 'TWD' or cart.currency.iso_code == 'TSH' or cart.currency.iso_code == 'THB' or cart.currency.iso_code == 'UGX' or cart.currency.iso_code == 'KWD' -%}
+  {% if template contains 'product' %}
+    {%- assign fa_product_price = fa_current_variant.price | money_without_currency | remove:',' -%}
+  {% elsif template contains 'cart' %}
+    {%- assign fa_product_price = cart.total_price | money_without_currency | remove:',' -%}
+  {% endif %}
+{%- else -%}
+
+  {% if template contains 'product' %}
+    {%- assign fa_product_price = fa_current_variant.price | money_without_currency | remove:'.' | replace: ',', '.' -%}
+  {% elsif template contains 'cart' %}
+    {%- assign fa_product_price = cart.total_price | money_without_currency | remove:'.' | replace: ',', '.' -%}
+  {% endif %}
+{%- endif -%}
+{% assign template_name = template.name %}
+<script type="text/javascript">
+  window.dataLayer = window.dataLayer || [];
+  window.appStart = function() {
+    window.productPageHandle = function() {
+      window.dataLayer.push({
+        event: 'view_item',
+        page_type: "product",
+        value: "{{ fa_product_price }}",
+        currency: "{{ cart.currency.iso_code }}",
+        "items": [
+          {
+            item_id: "{{ fa_product_id_value }}",
+            item_name: "{{ product.title | strip_html | escape }}",
+            item_variant: "{{ product.variant.title | strip_html | remove: "Default Title" | escape }}",
+            item_brand: "{{ product.vendor | escape }}",
+            currency: "{{ cart.currency.iso_code }}",
+            price: "{{ fa_product_price }}",
+            item_category: "{{ product.collections.first.title | remove: "'" | remove: '"' }}",
+            quantity: "1"
+          }
+        ]
+      });
+    };
+
+    window.productCartHandle = function() {
+      let discount_name = "";
+      let discount_savings = "";{% for discount_application in cart.cart_level_discount_applications %}discount_name = "{{ discount_application.title }}";
+        discount_savings = "{{ discount_application.total_allocated_amount | money }}";{% endfor %}window.dataLayer.push({
+        event: 'view_cart',
+        page_type: "cart",
+        currency: "{{ cart.currency.iso_code }}",
+        value: "{{ fa_product_price }}",
+        'items': [{% for item in cart.items %}{
+              coupon: discount_name,
+              discount: discount_savings,
+              {% if fa_product_id == 'default' %}
+                item_id : "shopify_  {{ fa_product_id_alpha2_code }}_{{ item.product_id }}_{{ item.variant_id }}",
+              {% elsif fa_product_id == 'product_id' %}
+                item_id : "{{ item.variant_id }}",
+              {% elsif fa_product_id == 'parent_id' %}
+                item_id : "{{ item.product_id }}",
+              {% elsif fa_product_id == 'sku' %}
+                item_id : "{{ item.sku }}",
+              {% endif %}
+              item_name: "{{ item.title | remove: "'" | remove: '"' }}",
+              item_variant: "{{ item.variant.title | strip_html | remove: "Default Title" | escape }}",
+              item_brand: "{{ item.vendor | escape }}",
+              item_category: "{{ item.collections.title | remove: "'" | remove: '"' }}",
+              currency: "{{ cart.currency.iso_code }}",
+              price: {{ item.final_price | times: 0.01 }},
+              quantity: {{ item.quantity }}
+            },{% endfor %}]
+      });
+    };
+
+    window.collectionHandle = function() {
+      window.dataLayer.push({
+        event: 'view_item_list',
+        page_type: "collection",
+        item_list_name: "{{ collection.title }}",
+        item_list_id: "{{ collection.handle }}",
+        'items': [{% for item in collection.products %}{
+              item_id: "{{ item.id }}",
+              item_name: "{{ item.title | remove: "'" | remove: '"' }}",
+              currency: "{{ cart.currency.iso_code }}",
+              price: {{ item.price | times: 0.01 }},
+              index: {{ forloop.index0 }},
+              item_brand: "{{ item.vendor }}",
+              item_list_name: "{{ collection.title }}",
+              item_list_id: "{{ collection.handle }}"
+            },{% endfor %}]
+      });
+    };
+
+    window.searchHandle = function() {
+      window.dataLayer.push({event: 'search', page_type: "search", search_term: "{{ search.terms }}"});
+    };{% case template_name %}
+    {% when 'product' %}
+      productPageHandle()
+    {% when 'cart' %}
+      productCartHandle()
+    {% when 'search' %}
+      searchHandle()
+    {% when 'collection' %}
+      collectionHandle(){% endcase %}
+  }
+
+  appStart();
+</script>
+<!-- Google Analytics 4 Data Layer Start Copyright FeedArmy 2022 V1.3 -->

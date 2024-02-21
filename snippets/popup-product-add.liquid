@@ -1,0 +1,30 @@
+<div class="product-variants__add-to-cart" id="variant__add-to-cart" aria-hidden="true">
+  <div class="product-variants__content">
+    <div class="product-variants__image">
+      <img data-recommendation-image src="" width="100" height="100">
+    </div>
+    <div class="product-variants__info">
+      <a data-recommendation-url data-recommendation-title></a>
+      <div class="mini-cart__price-list">
+        <span class="price" data-recommendation-price></span>
+      </div>
+
+      <form data-recommendation-variants class="product-variants__list">
+        <input type="radio" name="variant-id" id="23" checked>
+        <label for="23">test</label>
+
+        <input type="radio" name="variant-id" id="24">
+        <label for="24">test</label>
+
+        <input type="radio" name="variant-id" id="25">
+        <label for="25">test</label>
+      </form>
+
+      <button class="mini-cart__recommendation-add" data-action="recommendation-add">
+        {%- render 'icon', icon: 'cart-check' -%}
+        <span data-recommendation-add>{{ 'product.form.add_to_cart' | t }}</span>
+        <span data-recommendation-added>{{ 'product.form.added_short' | t }}</span>
+      </button>
+    </div>
+  </div>
+</div>
